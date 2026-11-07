@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!--
+  MODÈLE 3 : SALON DE COIFFURE / BEAUTÉ (un seul fichier, sans dépendance)
+  PERSONNALISER EN 4 ÉTAPES :
+  1. Couleurs et polices : variables CSS dans :root.
+  2. CONFIG (tout en bas) : nom du salon, numéro WhatsApp (format international sans + : 22870414673),
+     heures d'ouverture et d'arrivée des rendez-vous, jour de fermeture (0 = dimanche, 1 = lundi...).
+  3. Tarifs : tableau TARIFS (bas du fichier). Une ligne par prestation : [nom, durée indicative, prix en FCFA]. Prix = exemples.
+  4. Photos : dossier images/ (hero.jpg). Sans photo, un dégradé s'affiche. Remplace [ADRESSE] dans le pied de page.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salon Éclat - Coiffure et beauté à Kara</title>
+<meta name="description" content="Tresses, coiffure, soins et ongles à Kara. Choisissez vos prestations et prenez rendez-vous sur WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#231A2E;--berry:#9B2C6B;--gold:#E8B84A;--ground:#FFFFFF;--soft:#F6F0F5;--muted:#5E5468;--line:#E3D9E2;
+--font-title:'Syne',system-ui,sans-serif;--font-body:'Figtree',system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.6 var(--font-body);color:var(--ink);background:var(--ground)}
+h1,h2,h3{font-family:var(--font-title);line-height:1.1;margin:0}
+:focus-visible{outline:3px solid var(--berry);outline-offset:3px}
+.wrap{max-width:1020px;margin:0 auto;padding:0 24px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.logo{font:700 24px var(--font-title)}
+.btn{display:inline-block;border:0;border-radius:999px;background:var(--berry);color:#fff;font:600 16px var(--font-body);padding:13px 26px;cursor:pointer;text-decoration:none}
+.btn:hover{background:#7d2255}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:center;padding:24px 0 72px}
+.hero h1{font-size:clamp(38px,6.4vw,70px);margin-bottom:16px}
+.hero p{max-width:42ch;color:var(--muted);margin:0 0 24px}
+.photo{min-height:420px;border-radius:200px 200px 18px 18px;background-image:var(--img),linear-gradient(160deg,var(--berry),var(--ink));background-size:cover;background-position:center}
+h2{font-size:clamp(26px,3.6vw,36px);margin-bottom:8px}
+.sub{margin:0 0 22px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:start;padding-bottom:72px}
+.grp{margin-bottom:26px}
+.grp h3{font-size:19px;padding-bottom:8px;border-bottom:3px solid var(--gold);display:inline-block;margin-bottom:6px}
+.svc{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.svc input{width:22px;height:22px;accent-color:var(--berry)}
+.svc small{display:block;color:var(--muted);font-size:14px}
+.svc b{white-space:nowrap}
+.rdv{background:var(--soft);border-radius:18px;padding:24px;position:sticky;top:12px}
+.rdv h3{font-size:22px;margin-bottom:12px}
+.rdv label{display:grid;gap:4px;font-weight:600;font-size:15px;margin-bottom:12px}
+.rdv input,.rdv select{font:inherit;padding:10px;border:1px solid #A99BB0;border-radius:8px;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum{display:flex;justify-content:space-between;font:700 18px var(--font-title);padding:10px 0 4px}
+#err{min-height:1.4em;margin:6px 0;color:#A3201B;font-size:15px}
+.rdv .btn{width:100%}
+footer{background:var(--ink);color:#fff;padding:36px 0}
+footer p{margin:0 0 6px}
+@media (max-width:800px){.hero,.cols{grid-template-columns:1fr}.photo{min-height:260px;order:-1;border-radius:120px 120px 18px 18px}.rdv{position:static}}
+</style>
+</head>
+<body>
+<header class="wrap top"><span class="logo">Salon Éclat</span><a class="btn" href="#rdv">Prendre rendez-vous</a></header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <h1>Votre coiffure, sans attendre.</h1>
+      <p>Cochez vos prestations, choisissez un jour et une heure : votre demande de rendez-vous arrive directement sur notre WhatsApp. Nous confirmons rapidement.</p>
+      <a class="btn" href="#tarifs">Voir les tarifs</a>
+    </div>
+    <div class="photo" style="--img:url('images/hero.jpg')" role="img" aria-label="Coiffure réalisée au salon"></div>
+  </div>
+
+  <div class="cols" id="tarifs">
+    <div>
+      <h2>Tarifs</h2>
+      <p class="sub">Cochez ce que vous souhaitez. Le prix final est confirmé au salon.</p>
+      <div id="liste"></div>
+    </div>
+    <form class="rdv" id="rdv" novalidate>
+      <h3>Votre rendez-vous</h3>
+      <label>Votre nom<input id="nom" autocomplete="name"></label>
+      <div class="row">
+        <label>Jour<input type="date" id="jour"></label>
+        <label>Heure<select id="heure"></select></label>
+      </div>
+      <div class="sum"><span>Total estimé</span><span id="total">0 FCFA</span></div>
+      <p id="err" role="alert"></p>
+      <button class="btn" type="submit">Envoyer sur WhatsApp</button>
+    </form>
+  </div>
+</main>
+
+<footer><div class="wrap"><p><b>Salon Éclat</b></p><p>[ADRESSE], Kara, Togo</p><p id="ouv"></p></div></footer>
+
+<script>
+const CONFIG={nom:"Salon Éclat",whatsapp:"22870414673",ouvre:8,ferme:18,jourFerme:0};
+const TARIFS={
+ "Tresses et coiffure femme":[["Tresses simples","2 à 3 h",5000],["Tresses avec rajouts","3 à 4 h",8000],["Coiffure de fête","1 h 30",6000],["Défrisage et brushing","2 h",7000]],
+ "Hommes":[["Coupe","30 min",1500],["Coupe et barbe","45 min",2500]],
+ "Soins et ongles":[["Soin du visage","1 h",5000],["Pose de vernis","30 min",1500],["Manucure complète","1 h",4000]]
+};
+const JOURS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+const $=id=>document.getElementById(id),fmt=n=>n.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g," ")+" FCFA";
+let h="";
+for(const [g,items] of Object.entries(TARIFS)){
+  h+=`<div class="grp"><h3>${g}</h3>`;
+  items.forEach(([n,d,p])=>{h+=`<label class="svc"><input type="checkbox" data-n="${n}" data-p="${p}"><span>${n}<small>${d}</small></span><b>${fmt(p)}</b></label>`});
+  h+="</div>";
+}
+$("liste").innerHTML=h;
+const sel=$("heure");for(let i=CONFIG.ouvre;i<CONFIG.ferme;i++){sel.add(new Option(i+" h 00",i+":00"));sel.add(new Option(i+" h 30",i+":30"))}
+$("jour").min=new Date().toISOString().slice(0,10);
+$("ouv").textContent="Ouvert tous les jours de "+CONFIG.ouvre+" h à "+CONFIG.ferme+" h, sauf le "+JOURS[CONFIG.jourFerme]+".";
+const checked=()=>[...document.querySelectorAll(".svc input:checked")];
+document.addEventListener("change",()=>{$("total").textContent=fmt(checked().reduce((t,c)=>t+ +c.dataset.p,0))});
+$("rdv").addEventListener("submit",e=>{
+  e.preventDefault();const c=checked(),err=$("err");
+  if(!c.length){err.textContent="Cochez au moins une prestation.";return}
+  if(!$("nom").value.trim()){err.textContent="Indiquez votre nom.";return}
+  if(!$("jour").value){err.textContent="Choisissez un jour.";return}
+  const d=new Date($("jour").value+"T12:00:00");
+  if(d.getDay()===CONFIG.jourFerme){err.textContent="Le salon est fermé le "+JOURS[d.getDay()]+". Choisissez un autre jour.";return}
+  err.textContent="";
+  const l=c.map(x=>"- "+x.dataset.n).join("\n"),t=c.reduce((s,x)=>s+ +x.dataset.p,0);
+  const txt=`Bonjour ${CONFIG.nom}, je suis ${$("nom").value.trim()}. Je souhaite un rendez-vous le ${$("jour").value} à ${$("heure").value} pour :\n${l}\nTotal estimé : ${fmt(t)}\nMerci de me confirmer.`;
+  window.open("https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(txt),"_blank","noopener");
+});
+</script>
+</body>
+</html>

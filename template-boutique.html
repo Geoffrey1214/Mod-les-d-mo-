@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  MODÈLE 4 : BOUTIQUE / CATALOGUE (un seul fichier, sans dépendance)
+  PERSONNALISER EN 4 ÉTAPES :
+  1. Couleurs et polices : variables CSS dans :root.
+  2. CONFIG (tout en bas) : nom de la boutique et numéro WhatsApp (format international sans + : 22870414673).
+  3. Produits : tableau PRODUITS (tout en bas). Une ligne par produit :
+     {id, nom, cat, prix, tailles:[...], nouveau:true/false, dispo:true/false}. Les catégories se créent toutes seules. Prix = exemples.
+  4. Photos : une photo par produit dans images/, nommée produit-ID.jpg (ex. images/produit-1.jpg). Sans photo, un dégradé s'affiche.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boutique Mawuli - Mode et accessoires à Kara</title>
+<meta name="description" content="Vêtements, chaussures et accessoires. Choisissez votre article et commandez sur WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213D;--green:#0B7A5A;--tag:#FFD166;--ground:#FFFFFF;--soft:#F1F4F8;--muted:#56627A;--line:#DDE3EC;
+--font-title:'Manrope',system-ui,sans-serif;--font-body:'DM Sans',system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.6 var(--font-body);color:var(--ink);background:var(--ground)}
+h1,h2,h3{font-family:var(--font-title);line-height:1.12;margin:0}
+:focus-visible{outline:3px solid var(--green);outline-offset:3px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.logo{font:800 22px var(--font-title)}
+.btn{display:inline-block;border:0;border-radius:10px;background:var(--green);color:#fff;font:600 16px var(--font-body);padding:12px 20px;cursor:pointer;text-decoration:none}
+.btn:hover{background:#085f46}
+.btn[disabled]{background:#9AA5B8;cursor:not-allowed}
+.hero{padding:36px 0 28px}
+.hero h1{font-size:clamp(32px,5.2vw,54px);max-width:18ch;margin-bottom:12px}
+.hero p{color:var(--muted);max-width:50ch;margin:0 0 22px}
+.tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-bottom:22px}
+.tools input{flex:1 1 240px;font:inherit;padding:12px 14px;border:1px solid #9AA5B8;border-radius:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:#fff;font:600 15px var(--font-body);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+#count{margin:0 0 14px;color:var(--muted);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px;padding-bottom:72px}
+.card{display:flex;flex-direction:column;gap:6px}
+.photo{position:relative;aspect-ratio:4/5;border-radius:14px;background-image:var(--img),linear-gradient(150deg,var(--green),var(--ink));background-size:cover;background-position:center}
+.tag{position:absolute;top:10px;left:10px;background:var(--tag);color:var(--ink);font:700 13px var(--font-body);padding:4px 10px;border-radius:999px}
+.card h3{font-size:17px;margin-top:6px}
+.price{font-weight:600}
+.card select{font:inherit;padding:9px;border:1px solid #9AA5B8;border-radius:8px;background:#fff}
+.card .btn{margin-top:4px;text-align:center}
+.empty{grid-column:1/-1;padding:40px 0;color:var(--muted)}
+footer{background:var(--soft);padding:32px 0;color:var(--muted)}
+footer p{margin:0 0 4px}
+</style>
+</head>
+<body>
+<header class="wrap top"><span class="logo" id="nomBoutique"></span><a class="btn" id="waTop" href="#">Écrire sur WhatsApp</a></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Choisissez votre article, commandez en un message.</h1>
+    <p>Parcourez le catalogue, choisissez la taille, et envoyez votre commande sur WhatsApp. Nous confirmons la disponibilité, le prix final et la livraison.</p>
+  </section>
+  <div class="tools">
+    <input type="search" id="q" placeholder="Rechercher un article" aria-label="Rechercher un article">
+    <div class="chips" id="chips" role="group" aria-label="Catégories"></div>
+  </div>
+  <p id="count" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer><div class="wrap"><p><b id="nomFoot"></b></p><p>[ADRESSE], Kara, Togo. Livraison possible à Kara et alentours (frais confirmés par WhatsApp).</p></div></footer>
+
+<script>
+const CONFIG={nom:"Boutique Mawuli",whatsapp:"22870414673"};
+const PRODUITS=[
+ {id:1,nom:"Robe en tissu wax",cat:"Vêtements",prix:12000,tailles:["S","M","L","XL"],nouveau:true,dispo:true},
+ {id:2,nom:"Chemise en pagne",cat:"Vêtements",prix:9000,tailles:["M","L","XL"],nouveau:false,dispo:true},
+ {id:3,nom:"Ensemble enfant",cat:"Vêtements",prix:7500,tailles:["2-4 ans","5-7 ans"],nouveau:false,dispo:true},
+ {id:4,nom:"Sandales en cuir",cat:"Chaussures",prix:8000,tailles:["38","39","40","41","42","43","44"],nouveau:false,dispo:true},
+ {id:5,nom:"Baskets blanches",cat:"Chaussures",prix:15000,tailles:["38","39","40","41","42","43","44","45"],nouveau:true,dispo:true},
+ {id:6,nom:"Sac à main",cat:"Accessoires",prix:10000,tailles:[],nouveau:false,dispo:true},
+ {id:7,nom:"Ceinture en cuir",cat:"Accessoires",prix:4000,tailles:[],nouveau:false,dispo:true},
+ {id:8,nom:"Bonnet",cat:"Accessoires",prix:2500,tailles:[],nouveau:false,dispo:false}
+];
+const $=id=>document.getElementById(id),fmt=n=>n.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g," ")+" FCFA";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+$("nomBoutique").textContent=$("nomFoot").textContent=CONFIG.nom;
+$("waTop").href="https://wa.me/"+CONFIG.whatsapp;
+let cat="Tous";
+const cats=["Tous",...new Set(PRODUITS.map(p=>p.cat))];
+$("chips").innerHTML=cats.map(c=>`<button type="button" class="chip" data-c="${esc(c)}" aria-pressed="${c===cat}">${esc(c)}</button>`).join("");
+function draw(){
+  const q=$("q").value.trim().toLowerCase();
+  const l=PRODUITS.filter(p=>(cat==="Tous"||p.cat===cat)&&p.nom.toLowerCase().includes(q));
+  $("count").textContent=l.length+(l.length>1?" articles":" article");
+  $("grid").innerHTML=l.length?l.map(p=>`<article class="card">
+    <div class="photo" style="--img:url('images/produit-${p.id}.jpg')" role="img" aria-label="${esc(p.nom)}">${p.nouveau?'<span class="tag">Nouveau</span>':""}</div>
+    <h3>${esc(p.nom)}</h3><span class="price">${fmt(p.prix)}</span>
+    ${p.tailles.length?`<select id="t${p.id}" aria-label="Taille de ${esc(p.nom)}">${p.tailles.map(t=>`<option>${esc(t)}</option>`).join("")}</select>`:""}
+    <button type="button" class="btn" data-id="${p.id}" ${p.dispo?"":"disabled"}>${p.dispo?"Commander sur WhatsApp":"Indisponible"}</button></article>`).join(""):'<p class="empty">Aucun article ne correspond à votre recherche.</p>';
+}
+$("q").addEventListener("input",draw);
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".chip");
+  if(c){cat=c.dataset.c;document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c));draw();return}
+  const b=e.target.closest(".card .btn");if(!b||b.disabled)return;
+  const p=PRODUITS.find(x=>x.id==b.dataset.id),s=$("t"+p.id);
+  const txt=`Bonjour ${CONFIG.nom}, je souhaite commander : ${p.nom}${s?" (taille "+s.value+")":""}, ${fmt(p.prix)}. Est-il disponible ? Quels sont les frais de livraison ?`;
+  window.open("https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(txt),"_blank","noopener");
+});
+draw();
+</script>
+</body>
+</html>
